@@ -115,17 +115,6 @@ Notifications:   Alertify.js
 
 <img width="529" height="255" alt="image" src="https://github.com/user-attachments/assets/b9636db0-7c70-43da-8bd9-8c58816d3fa9" />
 
-### **Detailed File Breakdown**
-
-| Component | Files  | Purpose |
-|-----------|-------|---------|
-| Backend API | 5 Python files | REST API, business logic |
-| Database | 1 SQL file | Schema, default data |
-| AI/ML | 2 Python files | Face & object detection |
-| Frontend UI | 1 HTML + 1 CSS + 1 JS | User interface |
-| Documentation | 6 Markdown files | Guides, API docs |
-
-
 ### **Exam Flow**
 ```
 ┌─────────────────────────────────────────────┐
