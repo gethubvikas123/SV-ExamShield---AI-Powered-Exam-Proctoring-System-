@@ -2,7 +2,7 @@
 
 An intelligent, full-stack exam proctoring solution that leverages AI and computer vision to ensure academic integrity in remote assessments. Monitor exams in real-time, detect violations automatically, and maintain fairness with progressive warnings.
 
-https://github.com/user-attachments/assets/4b1792fc-c8d0-4f7b-a526-9fd5b615b8e4
+https://github.com/user-attachments/assets/6f91e9d0-cc42-4380-b580-54d383ac8975
 
 ## 🎯 Overview
 
@@ -112,6 +112,7 @@ Notifications:   Alertify.js
 
 
 ## 📂 Project Structure
+
 <img width="529" height="255" alt="image" src="https://github.com/user-attachments/assets/b9636db0-7c70-43da-8bd9-8c58816d3fa9" />
 
 ### **Detailed File Breakdown**
