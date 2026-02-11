@@ -58,102 +58,6 @@ SV ExamShield is a comprehensive proctoring system designed for educational inst
 - 📈 Performance metrics
 - 📄 Exportable results
 
-### 🔐 **Security & Fairness**
-
-#### **Progressive Violation System**
-
-# 🛡️ SV ExamShield - AI-Powered Online Exam Proctoring System
-
-![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
-![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![AI](https://img.shields.io/badge/AI-MediaPipe%20%7C%20YOLO-red.svg)
-
-An intelligent, full-stack exam proctoring solution that leverages AI and computer vision to ensure academic integrity in remote assessments. Monitor exams in real-time, detect violations automatically, and maintain fairness with progressive warnings.
-
-[🎥 Demo Video](#demo) | [📖 Documentation](#documentation) | [🚀 Quick Start](#quick-start) | [🤝 Contributing](#contributing)
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Configuration](#configuration)
-- [Usage Guide](#usage-guide)
-- [API Documentation](#api-documentation)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
-- [Contact](#contact)
-
----
-
-## 🎯 Overview
-
-SV ExamShield is a comprehensive proctoring system designed for educational institutions conducting remote exams. It uses artificial intelligence to monitor students in real-time while maintaining fairness through a progressive warning system.
-
-### **Why SV ExamShield?**
-
-- 🎓 **Built for Education** - Designed specifically for academic integrity
-- 🤖 **AI-Powered** - Advanced face and object detection
-- ⚖️ **Fair & Ethical** - Progressive warnings before termination
-- 🆓 **Cost-Effective** - No expensive hardware required
-- 📊 **Complete Audit Trail** - Detailed violation logs for review
-- 🌐 **Remote-Ready** - Perfect for online education
-
----
-
-## ✨ Features
-
-### 🔍 **Intelligent Monitoring**
-
-#### **Face Detection (MediaPipe)**
-- ✅ Real-time face tracking
-- ✅ Multiple face detection (catches impersonation)
-- ✅ No face detection (student left seat)
-- ✅ Gaze direction tracking (looking away)
-- ✅ 95%+ accuracy in various lighting conditions
-
-#### **Object Recognition (YOLO v8)**
-- ✅ Unauthorized device detection (phones, tablets)
-- ✅ Study material detection (books, notes)
-- ✅ Secondary screen detection (laptops)
-- ✅ Confidence-based filtering (reduces false positives)
-- ✅ Custom severity levels (High/Medium/Low)
-
-#### **Behavior Monitoring**
-- ✅ Tab switching detection
-- ✅ Window focus tracking
-- ✅ Keyboard shortcut blocking (Ctrl+C, F12, etc.)
-- ✅ Right-click prevention
-- ✅ Copy/paste prevention
-
-### 📝 **Exam Management**
-
-#### **Smart Question System**
-- 📚 120 pre-loaded questions (Math, Data Science, ML, Science)
-- 🎲 Random question selection (prevents cheating)
-- 🏷️ Subject and difficulty categorization
-- ♾️ Template-based unlimited question generation
-- 🚫 No AI dependency for basic questions (fast & reliable)
-
-#### **Automated Assessment**
-- ⚡ Instant grading (100% accuracy)
-- 📊 Detailed score breakdowns
-- ✅ Question-by-question analysis
-- 📈 Performance metrics
-- 📄 Exportable results
-
-### 🔐 **Security & Fairness**
-
 #### **Progressive Violation System**
 Violation Count → Action
 ─────────────────────────────────────
@@ -243,7 +147,7 @@ sv-examshield/
 │   ├── object_detection.py           # YOLO object detection (150 lines)
 │   ├── question_generator.py            
 │
-├── 📁 frontend/                       # Frontend application               # Custom styles (500 lines)
+├── 📁 frontend/                       # Frontend application             
 │   ├── app.js                    # Application logic (850 lines)
 │   ├── index.html                    # Main interface (600 lines)
 
