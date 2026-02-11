@@ -1,4 +1,4 @@
-# 🛡️ SV ExamShield - AI-Powered Online Exam Proctoring System
+# 🛡️ SV ExamShield - AI Powered Online Exam Proctoring System
 
 An intelligent, full-stack exam proctoring solution that leverages AI and computer vision to ensure academic integrity in remote assessments. Monitor exams in real-time, detect violations automatically, and maintain fairness with progressive warnings.
 
