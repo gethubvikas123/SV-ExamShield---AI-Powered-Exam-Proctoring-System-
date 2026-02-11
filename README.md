@@ -65,7 +65,6 @@ Violation Count → Action
 3 violations    → Final warning popup
 4 violations    → Critical alert
 5 violations    → Auto-terminate exam
-```
 
 ### **Violation Classification**
 - 🔴 **High Severity** - Multiple faces, phones, tab switching
@@ -94,8 +93,6 @@ Violation Count → Action
 - 📊 Progress tracking
 - ⚠️ Violation warnings
 - 📝 Instant results
-
----
 
 ## 🛠️ Tech Stack
 
