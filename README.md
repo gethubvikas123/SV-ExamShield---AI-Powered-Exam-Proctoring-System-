@@ -108,12 +108,11 @@ ORM:             MySQL Connector Python
 Environment:     python-dotenv
 
 ### **AI/ML Components**
-```python
+python
 Face Detection:  MediaPipe 0.10.0
 Object Detection: YOLOv8 (Ultralytics 8.0.200)
 Computer Vision: OpenCV 4.8+
 Image Processing: NumPy, PIL
-```
 
 ### **Frontend**
 javascript
@@ -124,33 +123,8 @@ UI Framework:    Bootstrap 5.3
 Notifications:   Alertify.js
 
 
-### **DevOps & Deployment**
-```bash
-Containerization: Docker
-Orchestration:    Docker Compose
-Web Server:       Nginx
-Process Manager:  PM2 (optional)
-Version Control:  Git
-```
-
----
-
 ## 📂 Project Structure
-```
-sv-examshield/
-│
-│── requirements.txt
-├── 📁 backend/                         # Backend application
-│   ├── main.py                        # FastAPI application (408 lines)
-│   ├── database.py                    # MySQL connection (75 lines)
-│   ├── face_proctoring.py            # MediaPipe face detection (200 lines)
-│   ├── object_detection.py           # YOLO object detection (150 lines)
-│   ├── question_generator.py            
-│
-├── 📁 frontend/                       # Frontend application             
-│   ├── app.js                    # Application logic (850 lines)
-│   ├── index.html                    # Main interface (600 lines)
-
+<img width="529" height="255" alt="image" src="https://github.com/user-attachments/assets/b9636db0-7c70-43da-8bd9-8c58816d3fa9" />
 
 ### **Detailed File Breakdown**
 
@@ -243,17 +217,7 @@ sv-examshield/
 - Attempt to open developer tools
 
 #### **Violation Warnings**
-```
-Warning Levels:
-├── 1-2 violations: Alert notification
-├── 3 violations: Final warning popup
-│   "You have 3 violations. 2 more will terminate the exam!"
-├── 4 violations: Critical alert
-└── 5 violations: AUTO-TERMINATE
-    ├── Exam ends immediately
-    ├── Score calculated for answered questions
-    └── Admin can review violation log
-```
 
-</details>
+<img width="418" height="196" alt="image" src="https://github.com/user-attachments/assets/4bb01c33-558c-4bca-b32e-0a4f0ec90f53" />
+
 
