@@ -44,21 +44,21 @@ SV ExamShield is a comprehensive proctoring system designed for educational inst
 
 ### 📝 **Exam Management**
 
-#### **Smart Question System**
+### **Smart Question System**
 - 📚 120 pre-loaded questions (Math, Data Science, ML, Science)
 - 🎲 Random question selection (prevents cheating)
 - 🏷️ Subject and difficulty categorization
 - ♾️ Template-based unlimited question generation
 - 🚫 No AI dependency for basic questions (fast & reliable)
 
-#### **Automated Assessment**
+### **Automated Assessment**
 - ⚡ Instant grading (100% accuracy)
 - 📊 Detailed score breakdowns
 - ✅ Question-by-question analysis
 - 📈 Performance metrics
 - 📄 Exportable results
 
-#### **Progressive Violation System**
+### **Progressive Violation System**
 Violation Count → Action
 ─────────────────────────────────────
 1-2 violations  → Warning notification
@@ -67,28 +67,28 @@ Violation Count → Action
 5 violations    → Auto-terminate exam
 ```
 
-#### **Violation Classification**
+### **Violation Classification**
 - 🔴 **High Severity** - Multiple faces, phones, tab switching
 - 🟡 **Medium Severity** - Looking away, blocked shortcuts
 - 🟢 **Low Severity** - Brief distractions, minor infractions
 
-#### **Complete Audit Trail**
+### **Complete Audit Trail**
 - 📝 Timestamped violation logs
 - 🎥 Frame-by-frame analysis records
 - 📊 Severity classifications
 - 👤 User-specific violation history
 - 📄 Exportable reports for disputes
 
-### 👥 **User Management**
+## 👥 **User Management**
 
-#### **Admin Panel**
+### **Admin Panel**
 - 🎛️ Question generation and management
 - 👀 View all exams and results
 - 📊 Analytics dashboard
 - 🔧 System configuration
 - 📋 Violation review interface
 
-#### **Student Interface**
+### **Student Interface**
 - 📱 Clean, intuitive exam UI
 - ⏱️ Real-time timer
 - 📊 Progress tracking
@@ -137,8 +137,7 @@ Notifications:   Alertify.js
 | Documentation | 6 Markdown files | ~3,000 | Guides, API docs |
 | **Total** | **20+ files** | **~7,000** | Complete system |
 
-#### **Exam Flow**
-```
+### **Exam Flow**
 ┌─────────────────────────────────────────────┐
 │ 1. LOGIN                                    │
 │    - Enter username & password              │
@@ -195,9 +194,8 @@ Notifications:   Alertify.js
 │    - Violation count                        │
 │    - Question-by-question breakdown         │
 └─────────────────────────────────────────────┘
-```
 
-#### **Do's and Don'ts**
+### **Do's and Don'ts**
 
 ✅ **DO:**
 - Keep your face visible in the camera
@@ -216,7 +214,7 @@ Notifications:   Alertify.js
 - Try to copy/paste
 - Attempt to open developer tools
 
-#### **Violation Warnings**
+### **Violation Warnings**
 
 <img width="418" height="196" alt="image" src="https://github.com/user-attachments/assets/4bb01c33-558c-4bca-b32e-0a4f0ec90f53" />
 
