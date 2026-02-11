@@ -59,12 +59,9 @@ SV ExamShield is a comprehensive proctoring system designed for educational inst
 - 📄 Exportable results
 
 ### **Progressive Violation System**
-Violation Count → Action
-─────────────────────────────────────
-1-2 violations  → Warning notification
-3 violations    → Final warning popup
-4 violations    → Critical alert
-5 violations    → Auto-terminate exam
+
+<img width="264" height="140" alt="image" src="https://github.com/user-attachments/assets/48ee0e21-c1d3-446d-8bdf-924a0de1c056" />
+
 
 ### **Violation Classification**
 - 🔴 **High Severity** - Multiple faces, phones, tab switching
@@ -97,21 +94,15 @@ Violation Count → Action
 ## 🛠️ Tech Stack
 
 ### **Backend**
-python
-Framework:       FastAPI 0.104+
-Language:        Python 3.8+
-Database:        MySQL 8.0+
-ORM:             MySQL Connector Python
-Environment:     python-dotenv
+
+<img width="289" height="134" alt="image" src="https://github.com/user-attachments/assets/3fcad315-e045-46e6-bf21-7c0d98895104" />
 
 ### **AI/ML Components**
-python
-Face Detection:  MediaPipe 0.10.0
-Object Detection: YOLOv8 (Ultralytics 8.0.200)
-Computer Vision: OpenCV 4.8+
-Image Processing: NumPy, PIL
+
+<img width="319" height="108" alt="image" src="https://github.com/user-attachments/assets/32255218-cde2-416e-9105-0bed783cb936" />
 
 ### **Frontend**
+
 javascript
 HTML5:           Semantic markup
 CSS3:            Custom styling + Bootstrap 5
@@ -125,16 +116,17 @@ Notifications:   Alertify.js
 
 ### **Detailed File Breakdown**
 
-| Component | Files | Lines | Purpose |
-|-----------|-------|-------|---------|
-| Backend API | 5 Python files | ~1,400 | REST API, business logic |
-| Database | 1 SQL file | ~150 | Schema, default data |
-| AI/ML | 2 Python files | ~350 | Face & object detection |
-| Frontend UI | 1 HTML + 1 CSS + 1 JS | ~2,000 | User interface |
-| Documentation | 6 Markdown files | ~3,000 | Guides, API docs |
-| **Total** | **20+ files** | **~7,000** | Complete system |
+| Component | Files  | Purpose |
+|-----------|-------|---------|
+| Backend API | 5 Python files | REST API, business logic |
+| Database | 1 SQL file | Schema, default data |
+| AI/ML | 2 Python files | Face & object detection |
+| Frontend UI | 1 HTML + 1 CSS + 1 JS | User interface |
+| Documentation | 6 Markdown files | Guides, API docs |
+
 
 ### **Exam Flow**
+```
 ┌─────────────────────────────────────────────┐
 │ 1. LOGIN                                    │
 │    - Enter username & password              │
@@ -191,7 +183,7 @@ Notifications:   Alertify.js
 │    - Violation count                        │
 │    - Question-by-question breakdown         │
 └─────────────────────────────────────────────┘
-
+```
 ### **Do's and Don'ts**
 
 ✅ **DO:**
