@@ -2,7 +2,6 @@
 
 An intelligent, full-stack exam proctoring solution that leverages AI and computer vision to ensure academic integrity in remote assessments. Monitor exams in real-time, detect violations automatically, and maintain fairness with progressive warnings.
 
-https://github.com/user-attachments/assets/6f91e9d0-cc42-4380-b580-54d383ac8975
 
 ## 🎯 Overview
 
