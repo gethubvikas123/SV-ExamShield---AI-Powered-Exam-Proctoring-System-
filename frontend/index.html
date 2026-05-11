@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SV ExamShield - AI-Powered Proctoring</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Alertify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css"/>
+    
+    <!-- AOS Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            
+            /* Neutrals */
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-dark: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            
+            /* Effects */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.4);
+            
+            /* Spacing */
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --border-radius-lg: 24px;
+        }
+        
+        *,
+        html {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            animation: backgroundMove 20s ease infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #adminPage {
+            min-height: 100vh;
+            padding-top: 0 !important;
+            margin-top: 0 !important;}
+  
+        @keyframes backgroundMove {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+        
+        /* Container */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Page Sections */
+        .page-section {
+             display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .page-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* ===================== LOGIN PAGE ===================== */
+        #loginPage {
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0; /* IMPORTANT: Remove any default margin */
+        }
+
+        #loginPage.active {
+            display: flex;
+        }
+        
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .brand-logo h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .brand-logo .tagline {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+        
+        .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .brand-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        .login-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .login-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .login-card p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+        
+        /* Modern Form Inputs */
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-floating > .form-control,
+        .form-floating > .form-select {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding-top: 1.75rem; 
+            padding-bottom: 0.5rem;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating > .form-control:focus,
+        .form-floating > .form-select:focus {
+            background: rgba(51, 65, 85, 0.7);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        .form-floating > label {
+            color: var(--text-muted);
+        }
+        
+        /* Gradient Buttons */
+        .btn-gradient {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-outline-custom {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+            padding: 0.875rem 2rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-custom:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* ===================== ADMIN PAGE ===================== */
+.admin-header {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem 0;
+    margin: 0; /* IMPORTANT: Remove margin */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+        
+        .admin-header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome-message {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        /* Modern Tabs */
+        .custom-tabs {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+            overflow-x: auto;
+        }
+        
+        .custom-tabs .nav-link {
+            color: var(--text-secondary);
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--border-radius-sm);
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .custom-tabs .nav-link:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-light);
+        }
+        
+        .custom-tabs .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .custom-tabs .nav-link i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Tab Content */
+        .tab-pane {
+            animation: fadeIn 0.5s ease;
+            padding: 1rem 0;
+        }
+        
+        .tab-pane .glass-card {
+            padding: 2rem;
+        }
+        
+        .tab-content {
+            padding-bottom: 1.5rem;
+        }
+        
+        .question-display {
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Question Cards */
+        .question-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateX(5px);
+        }
+        
+        /* ===================== EXAM PAGE ===================== */
+        .exam-header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--primary);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .exam-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .exam-timer {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            font-variant-numeric: tabular-nums;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        /* Video Feed */
+        .video-container {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        #videoFeed {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: var(--border-radius);
+        }
+        
+        .monitoring-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(239, 68, 68, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .monitoring-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* Question Display */
+        .question-display {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-lg);
+            padding: 2.5rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .question-number {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .question-text {
+            font-size: 1.35rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        /* Modern Option Buttons */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(51, 65, 85, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: left;
+            font-size: 1.05rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .option-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .option-btn:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .option-btn.selected {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .option-btn.selected::before {
+            transform: scaleY(1);
+        }
+        
+        .option-label {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 700;
+            margin-right: 1rem;
+            color: white;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .progress {
+            height: 12px;
+            border-radius: 10px;
+            background: rgba(51, 65, 85, 0.5);
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-nav {
+            flex: 1;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-previous {
+            background: rgba(51, 65, 85, 0.6);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-previous:hover:not(:disabled) {
+            background: rgba(51, 65, 85, 0.8);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-next {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-submit {
+            background: var(--gradient-success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Violations Panel */
+        .violations-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .violation-item {
+            background: rgba(51, 65, 85, 0.5);
+            border-left: 4px solid var(--danger);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .violation-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .violation-high {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .violation-medium {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .violation-low {
+            background: var(--info);
+            color: white;
+        }
+        
+        /* ===================== RESULTS PAGE ===================== */
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+        
+        .score-card {
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius-lg);
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: backgroundScroll 20s linear infinite;
+        }
+        
+        @keyframes backgroundScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .score-value {
+            font-size: 5rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .score-label {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Answer Review */
+        .answer-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .answer-card.correct {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .answer-card.incorrect {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .brand-logo h1 {
+                font-size: 2rem;
+            }
+            
+            .login-card {
+                padding: 2rem;
+            }
+            
+            .exam-timer {
+                font-size: 1.25rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .score-value {
+                font-size: 3.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .custom-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Hidden Elements */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Utility Classes */
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glow {
+            box-shadow: var(--shadow-glow);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- ===================== LOGIN PAGE ===================== -->
+        <div id="loginPage" class="page-section active">
+            <div class="login-container" data-aos="fade-up">
+                <div class="brand-logo">
+                    <div class="brand-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h1>SV ExamShield</h1>
+                    <p class="tagline">AI-POWERED EXAM PROCTORING</p>
+                </div>
+                
+                <div class="login-card" data-aos="fade-up" data-aos-delay="100">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to access your exam dashboard</p>
+                    
+                    <form id="loginForm">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="loginUsername" placeholder="Username" required>
+                            <label for="loginUsername"><i class="fas fa-user me-2"></i>Username</label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Password" required>
+                            <label for="loginPassword"><i class="fas fa-lock me-2"></i>Password</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-gradient w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </button>
+                        
+                        <button type="button" class="btn btn-outline-custom w-100" onclick="showRegister()">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            Demo: admin / admin123
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== ADMIN PAGE ===================== -->
+        <div id="adminPage" class="page-section">
+            <div class="admin-header">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1><i class="fas fa-shield-halved me-2"></i>SV ExamShield</h1>
+                            <p class="welcome-message mb-0">Admin Dashboard</p>
+                        </div>
+                        <button class="btn btn-outline-custom" onclick="location.reload()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container mt-4">
+                <!-- Navigation Tabs -->
+                <ul class="nav custom-tabs" role="tablist" data-aos="fade-down">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#generateTab">
+                            <i class="fas fa-wand-magic-sparkles"></i>Generate Questions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#addQuestionTab">
+                            <i class="fas fa-plus-circle"></i>Add Question
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#viewQuestionsTab">
+                            <i class="fas fa-list"></i>View All Questions
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Generate Questions Tab -->
+                    <div class="tab-pane fade show active" id="generateTab">
+                        <div class="glass-card p-4" data-aos="fade-up">
+                            <h3 class="mb-4">
+                                <i class="fas fa-robot me-2 text-gradient"></i>
+                                AI Question Generator
+                            </h3>
+                            
+                            <form id="generateForm">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="genSubject" required>
+                                                <option value="">Select Subject</option>
+                                                <option value="Mathematics">Mathematics</option>
+                                                <option value="Data Science">Data Science</option>
+                                                <option value="Machine Learning">Machine Learning</option>
+                                                <option value="Science">Science</option>
+                                            </select>
+                                            <label><i class="fas fa-book me-2"></i>Subject</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" id="genDifficulty" required>
+                                                <option value="easy">Easy</option>
+                                                <option value="medium">Medium</option>
+                                                <option value="hard">Hard</option>
+                                            </select>
+                                            <label><i class="fas fa-chart-line me-2"></i>Difficulty</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" id="genCount" min="1" max="20" value="10" required>
+                                            <label><i class="fas fa-hashtag me-2"></i>Question Count</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-gradient btn-lg px-5">
+                                    <i class="fas fa-sparkles me-2"></i>Generate Questions
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Manual Question Tab -->
+                    <div class="tab-pane fade" id="addQuestionTab">
+                        <div class="glass-card p-4" data-aos="fade-up">
+                            <h3 class="mb-4">
+                                <i class="fas fa-pen-to-square me-2 text-gradient"></i>
+                                Create Custom Question
+                            </h3>
+                            
+                            <form id="manualQuestionForm">
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="manQuestion" placeholder="Question" style="height: 100px" required></textarea>
+                                    <label><i class="fas fa-question-circle me-2"></i>Question Text</label>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="manOptA" placeholder="Option A" required>
+                                            <label><i class="fas fa-circle me-2"></i>Option A</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="manOptB" placeholder="Option B" required>
+                                            <label><i class="fas fa-circle me-2"></i>Option B</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="manOptC" placeholder="Option C" required>
+                                            <label><i class="fas fa-circle me-2"></i>Option C</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="manOptD" placeholder="Option D" required>
+                                            <label><i class="fas fa-circle me-2"></i>Option D</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="manCorrect" required>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                    </select>
+                                    <label><i class="fas fa-check-circle me-2"></i>Correct Answer</label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-gradient btn-lg px-5">
+                                    <i class="fas fa-save me-2"></i>Save Question
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- View Questions Tab -->
+                    <div class="tab-pane fade" id="viewQuestionsTab">
+                        <div class="glass-card p-4" data-aos="fade-up">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-database me-2 text-gradient"></i>
+                                    Question Bank
+                                </h3>
+                                <button class="btn btn-outline-custom" onclick="loadAllQuestions()">
+                                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                                </button>
+                            </div>
+                            
+                            <div id="allQuestionsList">
+                                <p class="text-muted text-center py-5">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Loading questions...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== EXAM PAGE ===================== -->
+        <div id="examPage" class="page-section">
+            <!-- Exam Header -->
+            <div class="exam-header">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="exam-title">
+                            <i class="fas fa-clipboard-list me-2"></i>Exam in Progress
+                        </div>
+                        <div class="exam-timer" id="timer">00:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container my-4">
+                <div class="row">
+                    <!-- Main Content -->
+                    <div class="col-lg-8">
+                        <!-- Progress Bar -->
+                        <div class="progress-container" data-aos="fade-down">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">
+                                    Question <span id="currentQuestion">1</span> of <span id="totalQuestions">20</span>
+                                </span>
+                                <span class="text-muted">
+                                    Progress: <span id="progressPercent">0</span>%
+                                </span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Question Display -->
+                        <div class="question-display" id="questionContainer" data-aos="fade-up">
+                            <!-- Questions will be dynamically inserted here -->
+                        </div>
+                        
+                        <!-- Navigation Buttons -->
+                        <div class="nav-buttons" data-aos="fade-up">
+                            <button class="btn btn-nav btn-previous" id="prevBtn" onclick="previousQuestion()">
+                                <i class="fas fa-arrow-left me-2"></i>Previous
+                            </button>
+                            <button class="btn btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">
+                                Next<i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                            <button class="btn btn-nav btn-submit hidden" id="submitBtn" onclick="submitExam()">
+                                <i class="fas fa-check-circle me-2"></i>Submit Exam
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Video Feed -->
+                        <div class="video-container mb-3" data-aos="fade-left">
+                            <video id="videoFeed" autoplay muted playsinline></video>
+                            <div class="monitoring-badge">
+                                <span>AI Monitoring</span>
+                            </div>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                        </div>
+                        
+                        <!-- Violations Panel -->
+                        <div class="violations-panel" data-aos="fade-left" data-aos-delay="100">
+                            <h6 class="mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Violation Log
+                            </h6>
+                            <div id="violationsList">
+                                <p class="text-muted">No violations detected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== RESULTS PAGE ===================== -->
+        <div id="resultsPage" class="page-section">
+            <div class="results-container">
+                <!-- Score Card -->
+                <div class="score-card" data-aos="zoom-in">
+                    <div class="score-value" id="finalScore">0%</div>
+                    <div class="score-label">Final Score</div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="stats-grid" data-aos="fade-up">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="correctAnswers">0/0</div>
+                        <div class="stat-label">Correct Answers</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="stat-value" id="totalViolations">0</div>
+                        <div class="stat-label">Violations</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="timeTaken">00:00</div>
+                        <div class="stat-label">Time Taken</div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Results -->
+                <div class="glass-card p-4 mb-4" data-aos="fade-up">
+                    <h3 class="mb-4">
+                        <i class="fas fa-list-check me-2 text-gradient"></i>
+                        Answer Review
+                    </h3>
+                    <div id="detailedResults"></div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="text-center" data-aos="fade-up">
+                    <button class="btn btn-gradient btn-lg px-5 me-3" onclick="location.reload()">
+                        <i class="fas fa-home me-2"></i>Back to Dashboard
+                    </button>
+                    <button class="btn btn-outline-custom btn-lg px-5" onclick="window.print()">
+                        <i class="fas fa-download me-2"></i>Download Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="C:\Users\vy251\Documents\Vikas\proctoring-system-code\proctoring-system\frontend\app.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+    </script>
+</body>
+</html>
