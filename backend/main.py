@@ -109,21 +109,16 @@ async def login(user: UserLogin):
 
 # ==================== QUESTION MANAGEMENT ====================
 
-# @app.post("/api/questions/generate")
-# async def generate_questions(request: GenerateQuestionsRequest):
-#     """Generate questions using AI (Admin only)"""
-#     questions = question_gen.generate_questions(
-#         request.subject, 
-#         request.difficulty, 
-#         request.count
-#     )
 @app.post("/api/questions/generate")
 async def generate_questions(request: GenerateQuestionsRequest):
-    questions = question_gen.generate_questions(
+    result = question_gen.generate_questions(
         request.subject, 
         request.difficulty, 
         request.count
     )
+    
+    questions = result["questions"]
+    source = result["source"]
     
     # VALIDATE before storing
     for q in questions:
@@ -168,7 +163,11 @@ async def generate_questions(request: GenerateQuestionsRequest):
                 **q
             })
     
-    return {"questions": stored_questions, "count": len(stored_questions)}
+    return {
+        "questions": stored_questions,
+        "count": len(stored_questions),
+        "source": source
+    }
 
 @app.post("/api/questions")
 async def create_question(question: QuestionCreate):

@@ -1,11 +1,42 @@
+# Hybrid Question Generator with Groq AI + Pre-loaded Fallback
 
 
+import os
 import random
 import json
+import time
+from typing import List, Dict
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class QuestionGenerator:
     def __init__(self):
-        """Initialize with comprehensive pre-loaded question bank"""
+        """Initialize with Groq API and pre-loaded question bank"""
+        
+        # Groq API setup
+        self.groq_enabled = os.getenv('GROQ_ENABLED', 'true').lower() == 'true'
+        self.groq_timeout = int(os.getenv('GROQ_TIMEOUT', 5))  # seconds
+        
+        if self.groq_enabled:
+            try:
+                api_key = os.getenv('GROQ_API_KEY')
+                if api_key:
+                    self.groq_client = Groq(api_key=api_key)
+                    print("✅ Groq API initialized successfully")
+                else:
+                    print("⚠️ GROQ_API_KEY not found, using pre-loaded questions only")
+                    self.groq_client = None
+                    self.groq_enabled = False
+            except Exception as e:
+                print(f"⚠️ Failed to initialize Groq: {e}")
+                self.groq_client = None
+                self.groq_enabled = False
+        else:
+            self.groq_client = None
+            print("ℹ️ Groq disabled, using pre-loaded questions only")
+
         
         # 120 Pre-loaded questions (10 per subject per difficulty)
         self.question_bank = {
@@ -583,9 +614,15 @@ class QuestionGenerator:
             }
         }
         
-        print("✅ QuestionGenerator initialized with 120 pre-loaded questions")
-        print("📚 Subjects: Mathematics, Data Science, Machine Learning, Science")
-        print("📊 Each subject: 10 easy + 10 medium + 10 hard questions")
+        print(f"✅ Pre-loaded question bank ready: {self._count_questions()} questions")
+    
+    def _count_questions(self):
+        """Count total pre-loaded questions"""
+        total = 0
+        for subject in self.question_bank.values():
+            for difficulty in subject.values():
+                total += len(difficulty)
+        return total
     
     def _normalize_question_text(self, question_text):
         return ' '.join(question_text.lower().strip().split())
@@ -602,116 +639,233 @@ class QuestionGenerator:
 
         return unique
 
-    def generate_questions(self, subject, difficulty, count=5):
+    def generate_questions(self, subject: str, difficulty: str, count: int = 5) -> Dict:
         """
-        Generate questions intelligently:
-        - Uses pre-loaded bank (instant, high quality)
-        - Falls back to templates if needed (no AI required)
+        Generate questions using hybrid approach:
+        1. Try Groq API first (if enabled and count > 10)
+        2. Fallback to pre-loaded questions
+        3. Mix Groq + pre-loaded for optimal results
+        
+        Returns: {"questions": [...], "source": "groq|pre-loaded|hybrid"}
         """
         
-        count = min(count, 20)  # Max 20
+        count = min(count, 20)  # Max 20 questions
         
         print(f"\n🔄 Generating {count} {difficulty} questions for {subject}...")
         
-        selected = []
-
-        # Check if subject exists in pre-loaded bank
-        if subject in self.question_bank and difficulty in self.question_bank[subject]:
-            bank_questions = self.question_bank[subject][difficulty].copy()
-            random.shuffle(bank_questions)
-            selected.extend(bank_questions[:count])
-
-            if len(selected) < count:
-                needed = count - len(selected)
-                print(f"✅ Using {len(selected)} pre-loaded + generating {needed} template questions")
-                selected.extend(self._generate_template_questions(subject, difficulty, needed))
-            else:
-                print(f"✅ Using {len(selected)} pre-loaded questions from bank")
+        # Strategy selection
+        if count <= 10:
+            # Use pre-loaded for small counts (instant, reliable)
+            print(f"📚 Using pre-loaded questions (count ≤ 10)")
+            questions = self._get_preloaded_questions(subject, difficulty, count)
+            return {"questions": questions, "source": "pre-loaded"}
+        
+        elif self.groq_enabled and count > 10:
+            # Try Groq for larger counts (unique questions)
+            print(f"🤖 Attempting Groq generation...")
+            
+            try:
+                groq_questions = self._generate_with_groq(subject, difficulty, count)
+                
+                if groq_questions and len(groq_questions) >= count:
+                    print(f"✅ Groq generated {len(groq_questions)} unique questions")
+                    return {"questions": groq_questions[:count], "source": "groq"}
+                else:
+                    print(f"⚠️ Groq returned insufficient questions, using hybrid approach")
+                    questions = self._hybrid_generation(subject, difficulty, count)
+                    return {"questions": questions, "source": "hybrid"}
+                    
+            except Exception as e:
+                print(f"⚠️ Groq failed: {e}, falling back to pre-loaded")
+                questions = self._hybrid_generation(subject, difficulty, count)
+                return {"questions": questions, "source": "hybrid"}
+        
         else:
-            # Subject not in bank, generate from templates
-            print(f"⚠️ {subject} not in pre-loaded bank, generating from templates")
-            selected = self._generate_template_questions(subject, difficulty, count)
+            # Groq disabled or failed, use hybrid
+            print(f"📚 Using hybrid approach (Groq disabled)")
+            questions = self._hybrid_generation(subject, difficulty, count)
+            return {"questions": questions, "source": "hybrid"}
+    
+    def _generate_with_groq(self, subject: str, difficulty: str, count: int) -> List[Dict]:
+        """Generate questions using Groq API with timeout"""
+        
+        if not self.groq_client:
+            return []
+        
+        start_time = time.time()
+        
+        # Prepare prompt
+        prompt = f"""Generate {count} multiple choice questions about {subject} at {difficulty} difficulty level.
 
-        selected = self._dedupe_questions(selected)
+STRICT FORMAT - Respond ONLY with valid JSON array, no markdown, no explanation:
 
-        # If deduplication removed duplicates, fill any missing slots with more unique templates
-        while len(selected) < count:
-            selected.extend(self._generate_template_questions(subject, difficulty, count - len(selected)))
-            selected = self._dedupe_questions(selected)
+[
+  {{
+    "question": "Question text here?",
+    "option_a": "First option",
+    "option_b": "Second option",
+    "option_c": "Third option",
+    "option_d": "Fourth option",
+    "correct_answer": "A"
+  }}
+]
 
-        # Add metadata to all questions
-        for q in selected[:count]:
+Requirements:
+1. Each question must be unique and different from common textbook questions
+2. Options should be plausible and well-distributed
+3. Correct answer must be one of: A, B, C, or D
+4. Difficulty: {difficulty} level
+5. Subject: {subject}
+6. Total questions: {count}
+7. Return ONLY the JSON array, nothing else
+
+Generate now:"""
+
+        try:
+            # Call Groq API with timeout
+            response = self.groq_client.chat.completions.create(
+                model="llama-3.1-70b-versatile",  # Fast and smart
+                messages=[
+                    {"role": "system", "content": "You are an expert exam question generator. Always respond with valid JSON only."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=4000,
+                top_p=0.9
+            )
+            
+            elapsed = time.time() - start_time
+            print(f"⏱️ Groq response time: {elapsed:.2f}s")
+            
+            # Check timeout
+            if elapsed > self.groq_timeout:
+                print(f"⚠️ Groq exceeded timeout ({self.groq_timeout}s)")
+                return []
+            
+            # Parse response
+            content = response.choices[0].message.content.strip()
+            
+            # Remove markdown code blocks if present
+            if content.startswith("```"):
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+                content = content.strip()
+            
+            # Parse JSON
+            questions = json.loads(content)
+            
+            # Validate format
+            validated = []
+            for q in questions:
+                if self._validate_question(q):
+                    validated.append({
+                        "question": q.get("question", ""),
+                        "option_a": q.get("option_a", ""),
+                        "option_b": q.get("option_b", ""),
+                        "option_c": q.get("option_c", ""),
+                        "option_d": q.get("option_d", ""),
+                        "correct_answer": q.get("correct_answer", "A").upper(),
+                        "subject": subject,
+                        "difficulty": difficulty
+                    })
+            
+            if validated:
+                print(f"✅ Validated {len(validated)} Groq questions")
+            
+            return validated
+            
+        except json.JSONDecodeError as e:
+            print(f"❌ Failed to parse Groq response as JSON: {e}")
+            return []
+        except Exception as e:
+            print(f"❌ Groq API error: {e}")
+            return []
+    def _validate_question(self, q: Dict) -> bool:
+        """Validate question format"""
+        required_fields = ["question", "option_a", "option_b", "option_c", "option_d", "correct_answer"]
+        
+        # Check all fields exist and are non-empty
+        for field in required_fields:
+            if field not in q or not q[field] or len(str(q[field]).strip()) == 0:
+                return False
+        
+        # Validate correct answer is A, B, C, or D
+        if q["correct_answer"].upper() not in ["A", "B", "C", "D"]:
+            return False
+        
+        return True
+    
+    def _get_preloaded_questions(self, subject: str, difficulty: str, count: int) -> List[Dict]:
+        """Get questions from pre-loaded bank"""
+        
+        if subject not in self.question_bank or difficulty not in self.question_bank[subject]:
+            print(f"⚠️ {subject}/{difficulty} not in pre-loaded bank")
+            return []
+        
+        bank_questions = self.question_bank[subject][difficulty].copy()
+        random.shuffle(bank_questions)
+        
+        selected = bank_questions[:min(count, len(bank_questions))]
+        
+        # Add metadata
+        for q in selected:
             q['subject'] = subject
             q['difficulty'] = difficulty
-
-        return selected[:count]
+        
+        print(f"✅ Selected {len(selected)} pre-loaded questions")
+        return selected
     
-    def _generate_template_questions(self, subject, difficulty, count):
-        """
-        Generate questions from templates (no AI needed)
-        Better than DeepSeek free model!
-        """
+    def _hybrid_generation(self, subject: str, difficulty: str, count: int) -> List[Dict]:
+        """Mix pre-loaded questions with templates"""
+        
+        # Get all available pre-loaded
+        preloaded = self._get_preloaded_questions(subject, difficulty, 10)
+        
+        if len(preloaded) >= count:
+            return preloaded[:count]
+        
+        # Need more, generate templates
+        needed = count - len(preloaded)
+        templates = self._generate_template_questions(subject, difficulty, needed)
+        
+        result = preloaded + templates
+        random.shuffle(result)
+        
+        print(f"✅ Hybrid: {len(preloaded)} pre-loaded + {len(templates)} templates")
+        return result[:count]
+    
+    def _generate_template_questions(self, subject: str, difficulty: str, count: int) -> List[Dict]:
+        """Generate simple template-based questions"""
         
         templates = {
             "easy": [
                 {
-                    "question": f"What is the basic definition of {subject}?",
-                    "option_a": "A field of study focusing on specific principles",
-                    "option_b": "An unrelated concept",
-                    "option_c": "A type of software",
-                    "option_d": "A measurement unit",
-                    "correct_answer": "A"
-                },
-                {
-                    "question": f"Which of the following is commonly associated with {subject}?",
-                    "option_a": "Core concepts and foundational principles",
-                    "option_b": "Unrelated topics",
-                    "option_c": "Random data",
+                    "question": f"What is a fundamental concept in {subject}?",
+                    "option_a": "Core principle A",
+                    "option_b": "Core principle B",
+                    "option_c": "Core principle C",
                     "option_d": "None of the above",
-                    "correct_answer": "A"
-                },
-                {
-                    "question": f"What is a primary application of {subject}?",
-                    "option_a": "Solving real-world problems in the field",
-                    "option_b": "Entertainment purposes only",
-                    "option_c": "No practical applications",
-                    "option_d": "Historical documentation only",
                     "correct_answer": "A"
                 }
             ],
             "medium": [
                 {
-                    "question": f"What is an intermediate concept in {subject}?",
-                    "option_a": "Building upon fundamentals with advanced techniques",
-                    "option_b": "Basic introduction only",
-                    "option_c": "Completely unrelated topic",
-                    "option_d": "Outdated methodology",
-                    "correct_answer": "A"
-                },
-                {
-                    "question": f"How does {subject} relate to practical implementation?",
-                    "option_a": "Through systematic application of principles",
-                    "option_b": "No practical connection",
-                    "option_c": "Only theoretical value",
-                    "option_d": "Random association",
+                    "question": f"Which technique is commonly used in {subject}?",
+                    "option_a": "Advanced technique A",
+                    "option_b": "Advanced technique B",
+                    "option_c": "Advanced technique C",
+                    "option_d": "All of the above",
                     "correct_answer": "A"
                 }
             ],
             "hard": [
                 {
                     "question": f"What is an advanced concept in {subject}?",
-                    "option_a": "Complex integration of multiple principles",
-                    "option_b": "Simple basic idea",
-                    "option_c": "Introductory concept",
-                    "option_d": "Unrelated advanced topic",
-                    "correct_answer": "A"
-                },
-                {
-                    "question": f"What distinguishes expert-level understanding of {subject}?",
-                    "option_a": "Deep comprehension and application ability",
-                    "option_b": "Memorization only",
-                    "option_c": "Surface-level knowledge",
-                    "option_d": "No particular distinction",
+                    "option_a": "Complex theory A",
+                    "option_b": "Complex theory B",
+                    "option_c": "Complex theory C",
+                    "option_d": "Complex theory D",
                     "correct_answer": "A"
                 }
             ]
@@ -721,15 +875,14 @@ class QuestionGenerator:
         template_list = templates.get(difficulty, templates["easy"])
         
         for i in range(count):
-            template = template_list[i % len(template_list)].copy()
-            
-            # Customize the template to remain unique across repeated generations
-            if i >= len(template_list):
-                variant_label = random.choice(['Part', 'Variant', 'Review', 'Section', 'Level'])
-                template['question'] += f" ({variant_label} {i // len(template_list) + 1})"
-                template['option_b'] = template['option_b'] + ' (not correct)'
-                template['option_c'] = template['option_c'] + ' (not correct)'
-
-            questions.append(template)
+            q = template_list[i % len(template_list)].copy()
+            q['subject'] = subject
+            q['difficulty'] = difficulty
+            if i > 0:
+                q['question'] += f" (Part {i + 1})"
+            questions.append(q)
         
         return questions
+
+# Global instance
+question_gen = QuestionGenerator()
