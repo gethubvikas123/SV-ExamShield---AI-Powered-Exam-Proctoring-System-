@@ -363,6 +363,19 @@ async function submitAnswer(questionId, answer) {
     }
 }
 
+async function submitAllAnswersAndFinish(reason) {
+    alertify.message('Submitting your answers, please wait...');
+    
+    // Local memory se saare answers nikal kar ek-ek karke backend ko bhejo
+    for (const [questionId, answer] of Object.entries(userAnswers)) {
+        await submitAnswer(questionId, answer);
+    }
+    
+    // Sab answers save hone ke baad finally exam ko complete karo
+    finishExam(reason);
+}
+
+
 async function finishExam(reason = 'completed') {
     try {
         const response = await fetch(
@@ -506,20 +519,20 @@ function handleOptionClick(questionId, answer, button) {
     // 3. Data Update: Answer ko local memory mein save karo
     userAnswers[questionId] = answer;
 
-    // 4. Double-click (spam) submission rokne ki logic
-    const submitKey = `${questionId}-${answer}`;
-    if (submittingAnswers.has(submitKey)) {
-        return; // Agar already submit ho raha hai, toh wahi ruk jao
-    }
-    submittingAnswers.add(submitKey);
+    // // 4. Double-click (spam) submission rokne ki logic
+    // const submitKey = `${questionId}-${answer}`;
+    // if (submittingAnswers.has(submitKey)) {
+    //     return; // Agar already submit ho raha hai, toh wahi ruk jao
+    // }
+    // submittingAnswers.add(submitKey);
 
-    // 5. Backend (API) ko answer bhejo
-    submitAnswer(questionId, answer).finally(() => {
-        // 500 milliseconds baad button ko wapas normal state mein allow karo
-        setTimeout(() => {
-            submittingAnswers.delete(submitKey);
-        }, 500);
-    });
+    // // 5. Backend (API) ko answer bhejo
+    // submitAnswer(questionId, answer).finally(() => {
+    //     // 500 milliseconds baad button ko wapas normal state mein allow karo
+    //     setTimeout(() => {
+    //         submittingAnswers.delete(submitKey);
+    //     }, 500);
+    // });
 }
 
 // Track last submission time
@@ -568,7 +581,8 @@ function submitExam() {
             stopProctoring();
             stopCheatDetection();
             stopTimer();
-            finishExam('completed');
+            // FIX: Naya function call kiya gaya hai
+            submitAllAnswersAndFinish('completed');
         },
         function() {
             alertify.message('Continue with your exam');
@@ -795,7 +809,8 @@ function autoSubmitExam() {
     stopProctoring();
     stopCheatDetection();
     stopTimer();
-    finishExam('time_expired');
+    // FIX: Naya function call kiya gaya hai
+    submitAllAnswersAndFinish('time_expired');
 }
 // Results
 async function showResults(examData, reason = 'completed') {
@@ -882,22 +897,26 @@ async function generateQuestions() {
         
         if (response.ok) {
             const data = await response.json();
-            alertify.success(`✅ Generated ${data.count} questions!`);
             
-            await loadAllQuestions();
+            // Show generation method
+            let method = data.source || 'pre-loaded';
+            let icon = method === 'groq' ? '🤖' : method === 'hybrid' ? '🔄' : '📚';
             
-            // Automatically start the exam after successful question generation
-            if (currentUser) {
-                startExamSetup();
-            }
+            alertify.success(`${icon} Generated ${data.count} questions using ${method}!`);
+            
+            setTimeout(() => {
+                loadAllQuestions();
+            }, 500);
         } else {
             const error = await response.json();
-            alertify.error('Failed: ' + (error.detail || 'Unknown error'));
+            alertify.error(`Failed to generate questions: ${error.detail || 'Unknown error'}`);
         }
     } catch (error) {
-        alertify.error('Generation error: ' + error.message);
+        console.error('Error generating questions:', error);
+        alertify.error('Failed to generate questions. Please try again.');
     }
 }
+
 
 async function addManualQuestion() {
     const question = {

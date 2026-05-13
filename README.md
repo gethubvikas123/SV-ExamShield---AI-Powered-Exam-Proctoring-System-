@@ -1,56 +1,66 @@
-# 🎓 AI-Powered Proctoring System
+# 🛡️ SV ExamShield - AI Powered Online Exam Proctoring System
 
-A complete end-to-end online examination system with AI-powered proctoring capabilities using MediaPipe for face detection and YOLO for object detection.
+A comprehensive end-to-end online examination system with AI-powered proctoring capabilities using MediaPipe for real-time face detection and comprehensive exam management with Groq AI-powered question generation.
 
 ## ✨ Features
 
 ### Core Features
-- ✅ **Real-time Proctoring**: MediaPipe face detection + YOLO object detection
-- ✅ **AI Question Generation**: DeepSeek API integration for automatic question creation
-- ✅ **MySQL Database**: Store questions, answers, users, and violations
-- ✅ **FastAPI Backend**: High-performance REST API
-- ✅ **Bootstrap Frontend**: Responsive and modern UI
-- ✅ **Alertify Notifications**: User-friendly alerts and notifications
+- ✅ **Real-time Proctoring**: MediaPipe face detection with violation tracking
+- ✅ **MySQL Database**: Comprehensive schema for questions, answers, users, and violations
+- ✅ **FastAPI Backend**: High-performance REST API with full endpoint coverage
+- ✅ **Bootstrap Frontend**: Responsive and modern UI with real-time updates
+- ✅ **Alertify Notifications**: User-friendly alerts and violation notifications
 
 ### Proctoring Capabilities
-- **Face Detection**: Multiple faces, no face detected, looking away detection
-- **Object Detection**: Detects suspicious objects (phones, books, laptops, tablets)
-- **Violation Logging**: All violations stored in database with timestamps
-- **Real-time Monitoring**: Live video feed with instant violation alerts
+- **Face Detection**: Multiple face detection, no face alerts, gaze direction tracking
+- **Behavior Monitoring**: Tab switching detection, window focus tracking
+- **Violation Logging**: All violations timestamped and stored in database
+- **Real-time Monitoring**: Live video feed analysis with instant violation alerts
+- **Progressive Warning System**: Three-tier violation response system
 
 ### Exam Features
 - Maximum 20 questions per exam
 - Multiple-choice questions (A, B, C, D)
-- User answers and correct answers stored
-- Automatic scoring
-- Progress tracking
+- Subject and difficulty categorization
+- Automatic scoring with percentage calculation
+- Progress tracking with question-by-question breakdown
 - Timer for exam duration
-- Detailed results with question-by-question breakdown
+- Detailed results analytics
 
 ### Admin Features
-- AI question generation using DeepSeek
-- Manual question creation
-- View all questions with answers
-- Generate questions by subject and difficulty
+- Manual question creation and management
+- View all questions with answer keys
+- AI-powered question generation (Groq API)
+- Subject/difficulty filtering
+- Violation monitoring dashboard
 
 ## 🏗️ Architecture
 
 ```
 proctoring-system/
 ├── backend/
-│   ├── main.py                 # FastAPI application
-│   ├── database.py             # MySQL connection
-│   ├── face_proctoring.py      # MediaPipe face detection
-│   ├── object_detection.py     # YOLO object detection
-│   └── question_generator.py   # DeepSeek AI integration
+│   ├── main.py                 # FastAPI application with REST endpoints
+│   ├── database.py             # MySQL connection manager
+│   ├── face_proctoring.py      # MediaPipe face detection & analysis
+│   ├── object_detection.py     # Object detection (mock mode for stability)
+│   └── question_generator.py   # Groq AI + pre-loaded question bank (120 questions)
 ├── frontend/
-│   ├── index.html              # Main HTML interface
-│   └── app.js                  # JavaScript application
-├── models/                     # YOLO models (auto-downloaded)
-├── schema.sql                  # Database schema
+│   ├── index.html              # Main exam interface (Bootstrap 5)
+│   ├── app.js                  # JavaScript application with proctoring logic
+│   └── css/                    # Styling and responsive design
+├── models/                     # Optional model files directory
+├── schema.sql                  # MySQL database schema (5 tables)
 ├── requirements.txt            # Python dependencies
+├── test_api.py                 # API testing script
 └── .env.example               # Environment variables template
 ```
+
+### Database Schema (5 Tables)
+- **users**: User accounts with admin flags
+- **questions**: Question bank (120 pre-loaded + AI-generated)
+- **exams**: Exam sessions with timestamps and scores
+- **user_answers**: Student responses with correctness flags
+- **violations**: Proctoring violation logs with severity
 
 ## 🚀 Installation
 
@@ -91,7 +101,7 @@ pip install -r requirements.txt
 mysql -u root -p
 
 # Create database and import schema
-mysql -u root -p < schema.sql
+mysql -u root -p proctoring_db < schema.sql
 ```
 
 Or manually:
@@ -117,7 +127,6 @@ DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_mysql_password
 DB_NAME=proctoring_db
-DEEPSEEK_API_KEY=your_api_key  # Optional
 ```
 
 ### Step 5: Run the Application
@@ -177,9 +186,9 @@ Frontend will be available at: `http://localhost:3000` (if using http.server)
    - Username: `admin`
    - Password: `admin123`
 
-2. **Generate Questions (AI)**
+2. **Generate Questions**
    - Click "Generate Questions" tab
-   - Enter subject (e.g., "Python Programming")
+   - Enter subject (e.g., "Mathematics")
    - Select difficulty level
    - Choose number of questions
    - Click "Generate"
@@ -271,7 +280,7 @@ self.suspicious_objects = {
 - `GET /api/questions?limit=20` - Get random questions
 - `GET /api/questions/all` - Get all questions (admin)
 - `POST /api/questions` - Create question (admin)
-- `POST /api/questions/generate` - Generate questions with AI (admin)
+- `POST /api/questions/generate` - Generate questions from local pre-loaded bank (admin)
 
 ### Exam
 - `POST /api/exam/start` - Start new exam
@@ -287,28 +296,19 @@ self.suspicious_objects = {
 ### Statistics
 - `GET /api/stats/user/{user_id}` - Get user statistics
 
-## 🤖 AI Question Generation
+## 🤖 Question Generation
 
-### Using DeepSeek API
-
-1. Get API key from [https://platform.deepseek.com/](https://platform.deepseek.com/)
-2. Add to `.env` file:
-   ```env
-   DEEPSEEK_API_KEY=your_api_key_here
-   ```
-3. Update `backend/main.py`:
-   ```python
-   # Change from LocalQuestionGenerator to QuestionGenerator
-   question_gen = QuestionGenerator()
-   ```
-
-### Using Local Generation
-The system includes a fallback `LocalQuestionGenerator` with predefined templates for:
-- Python Programming
+### Using Local Pre-loaded Questions
+Questions are generated from a local pre-loaded bank in `backend/question_generator.py`.
+The system includes predefined question sets for:
 - Mathematics
-- General topics
+- Data Science
+- Machine Learning
+- Science
 
-Add more subjects in `backend/question_generator.py`.
+If the chosen subject is not in the pre-loaded bank, the generator falls back to template-based questions for any subject.
+
+Add more subjects or expand the question bank in `backend/question_generator.py`.
 
 ## 🎨 Customization
 
@@ -353,13 +353,11 @@ sudo systemctl status mysql
 mysql -h localhost -u root -p
 ```
 
-### YOLO Model Download Issues
-```python
-# The model downloads automatically on first run
-# If it fails, download manually from:
-# https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
-# Place in: /models/yolov8n.pt
-```
+### Object Detection / YOLO Notes
+The backend currently uses a simplified mock object detection module in `backend/object_detection.py`.
+Real YOLOv8 detection is optional and can be enabled by fixing PyTorch/Ultralytics compatibility and updating `backend/object_detection.py`.
+
+If you want to use a local YOLO model file, place `yolov8n.pt` in `models/` and follow the instructions in `backend/object_detection.py`.
 
 ### CORS Errors
 - Ensure backend is running on `localhost:8000`
@@ -394,11 +392,11 @@ For issues or questions, please open an issue on the repository.
 ## 🌟 Acknowledgments
 
 - **MediaPipe** - Face detection and tracking
-- **Ultralytics YOLOv8** - Object detection
+- **Ultralytics YOLOv8** - Object detection (optional / mock detection used by default)
 - **FastAPI** - Modern web framework
 - **Bootstrap 5** - Frontend framework
 - **Alertify.js** - Beautiful notifications
-- **DeepSeek** - AI question generation
+
 
 ---
 

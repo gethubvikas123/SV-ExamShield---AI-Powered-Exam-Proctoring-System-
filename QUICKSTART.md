@@ -96,8 +96,9 @@ Then open: http://localhost:3000
 
 ### Step 7: Login and Test
 
-**Admin Login:**
+**Default Admin Credentials:**
 - Username: `admin`
+- Password: `admin123`
 - Password: `admin123`
 
 **Test the System:**
